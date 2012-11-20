@@ -179,6 +179,11 @@ public class HttpClientSupport
 
 			} // while intermediate response
 
+			if(original instanceof ExtendedHttpMethod ) {
+				ExtendedHttpMethod extendedHttpMethod = (ExtendedHttpMethod)original;
+				extendedHttpMethod.afterReadResponse(((SoapUIMultiThreadedHttpConnectionManager.SoapUIBasicPooledConnAdapter ) conn).getSSLSession());
+			}
+
 			return response;
 		}
 	}
@@ -235,6 +240,7 @@ public class HttpClientSupport
 			}
 			HttpResponse httpResponse = httpClient.execute( method, httpContext );
 			method.setHttpResponse( httpResponse );
+
 			return httpResponse;
 		}
 
