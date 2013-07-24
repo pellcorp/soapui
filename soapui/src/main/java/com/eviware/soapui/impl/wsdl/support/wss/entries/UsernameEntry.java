@@ -40,6 +40,8 @@ public class UsernameEntry extends WssEntryBase
 
 	private static final String PASSWORD_TEXT = "PasswordText";
 
+	private static final String PASSWORD_NONE = "PasswordNone";
+	
 	public static final String TYPE = "Username";
 
 	private boolean addCreated;
@@ -66,6 +68,8 @@ public class UsernameEntry extends WssEntryBase
 				token.setPasswordType( WSConstants.PASSWORD_TEXT );
 			else if( passwordType.equals( PASSWORD_DIGEST ) || passwordType.equals( PASSWORD_DIGEST_EXT ) )
 				token.setPasswordType( WSConstants.PASSWORD_DIGEST );
+			else if( passwordType.equals( PASSWORD_NONE ) )
+				token.setPasswordType( null );
 		}
 
 		String password = context.expand( getPassword() );
@@ -102,7 +106,7 @@ public class UsernameEntry extends WssEntryBase
 		form.appendCheckBox( "addCreated", "Add Created", "Adds a created" );
 
 		form.appendComboBox( "passwordType", "Password Type", new String[] { PASSWORD_TEXT, PASSWORD_DIGEST,
-				PASSWORD_DIGEST_EXT }, "The password type to generate" );
+				PASSWORD_DIGEST_EXT, PASSWORD_NONE }, "The password type to generate" );
 
 		return form.getPanel();
 	}
