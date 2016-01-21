@@ -19,6 +19,7 @@ package com.eviware.soapui.tools;
 import com.eviware.soapui.impl.support.AbstractHttpRequest;
 import com.eviware.soapui.impl.support.http.HttpRequestTestStep;
 import com.eviware.soapui.impl.wsdl.WsdlRequest;
+import com.eviware.soapui.impl.wsdl.submit.transports.jms.JMSEndpoint;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlRunTestCaseTestStep;
 import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestRequest;
 import com.eviware.soapui.model.testsuite.TestCaseRunContext;
@@ -30,6 +31,25 @@ import com.eviware.soapui.support.StringUtils;
 import com.eviware.soapui.support.Tools;
 
 public abstract class AbstractSoapUITestRunner extends AbstractSoapUIRunner implements TestRunListener {
+    private String jmsEndpoint;
+    private String jmsHost;
+    
+    public String getJmsEndpoint() {
+        return jmsEndpoint;
+    }
+
+    public void setJmsEndpoint(String jmsEndpoint) {
+        this.jmsEndpoint = jmsEndpoint;
+    }
+
+    public String getJmsHost() {
+        return jmsHost;
+    }
+
+    public void setJmsHost(String jmsHost) {
+        this.jmsHost = jmsHost;
+    }
+
     private String endpoint;
     private String domain;
     private String password;
@@ -139,17 +159,31 @@ public abstract class AbstractSoapUITestRunner extends AbstractSoapUIRunner impl
 
     protected void prepareRequestStep(HttpRequestTestStep requestStep) {
         AbstractHttpRequest<?> httpRequest = requestStep.getHttpRequest();
-        if (StringUtils.hasContent(endpoint)) {
-            httpRequest.setEndpoint(endpoint);
-        } else if (StringUtils.hasContent(host)) {
-            try {
-                String ep = Tools.replaceHost(httpRequest.getEndpoint(), host);
-                httpRequest.setEndpoint(ep);
-            } catch (Exception e) {
-                log.error("Failed to set host on endpoint", e);
+        
+        if (httpRequest.getEndpoint().startsWith(JMSEndpoint.JMS_ENDPOINT_PREFIX)) {
+            if (StringUtils.hasContent(jmsEndpoint)) {
+                httpRequest.setEndpoint(jmsEndpoint);
+            } else if (StringUtils.hasContent(jmsHost)) {
+                try {
+                    String ep = Tools.replaceHost(httpRequest.getEndpoint(), jmsHost);
+                    httpRequest.setEndpoint(ep);
+                } catch (Exception e) {
+                    log.error("Failed to set jmsHost on endpoint", e);
+                }
+            }
+        } else {
+            if (StringUtils.hasContent(endpoint)) {
+                httpRequest.setEndpoint(endpoint);
+            } else if (StringUtils.hasContent(host)) {
+                try {
+                    String ep = Tools.replaceHost(httpRequest.getEndpoint(), host);
+                    httpRequest.setEndpoint(ep);
+                } catch (Exception e) {
+                    log.error("Failed to set host on endpoint", e);
+                }
             }
         }
-
+        
         if (StringUtils.hasContent(username)) {
             httpRequest.setUsername(username);
         }

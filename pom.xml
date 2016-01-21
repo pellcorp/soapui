@@ -7,7 +7,7 @@
     <groupId>com.smartbear.soapui</groupId>
     <artifactId>soapui-project</artifactId>
     <name>SoapUI project</name>
-    <version>5.3.0</version>
+    <version>5.3.0-pellcorp</version>
     <packaging>pom</packaging>
 
     <repositories>
@@ -137,4 +137,11 @@
             </plugin>
         </plugins>
     </build>
+
+	<distributionManagement>
+		<repository>
+			<id>repo</id>
+			<url>${maven.repo.dir}/releases</url>
+		</repository>
+	</distributionManagement>
 </project>

@@ -54,20 +54,21 @@ public class HttpUtils {
             return endpoint;
         }
         endpoint = endpoint.trim();
-        String lowerCaseEndpoint = endpoint.toLowerCase();
-        if (!lowerCaseEndpoint.startsWith("http://") && !lowerCaseEndpoint.startsWith("https://") && !endpoint.startsWith("$")) {
+        // don't change endpoint to lowercase as it may result in a 404
+        String ep = endpoint.toLowerCase();
+        if (!ep.startsWith("http://") && !ep.startsWith("https://") && !ep.startsWith("$")) {
             return "http://" + endpoint;
         }
 
         return endpoint;
     }
-
+    
     public static String completeUrlWithHttpIfProtocolIsMissing(String endpoint) {
         if (StringUtils.isNullOrEmpty(endpoint)) {
             return endpoint;
         }
-        endpoint = endpoint.trim();
-        if (!endpoint.contains("://")) {
+        String ep = endpoint.toLowerCase().trim();
+        if (!ep.contains("://")) {
             return "http://" + endpoint;
         }
         return endpoint;

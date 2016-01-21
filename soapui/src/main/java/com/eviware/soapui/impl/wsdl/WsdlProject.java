@@ -1603,6 +1603,13 @@ public class WsdlProject extends AbstractTestPropertyHolderWsdlModelItem<Project
     }
 
     private String resolveHermesConfig() {
+        // if a system property is provided, always override it
+        String hermesConfig = System.getProperty("HERMES_CONFIG");
+        
+        if (hermesConfig != null && !hermesConfig.equals("")) {
+            setHermesConfig(hermesConfig);
+        }
+        
         String hermesConfigProperty = getSettings().getString(ProjectSettings.HERMES_CONFIG, null);
         if (hermesConfigProperty != null && !hermesConfigProperty.equals("")) {
             return hermesConfigProperty;

@@ -44,17 +44,22 @@ public class PostResponseDataSource implements DataSource {
         try {
             data = postMethod.getResponseBody();
 
-            if (!SoapUI.getSettings().getBoolean(HttpSettings.DISABLE_RESPONSE_DECOMPRESSION)
-                    && postMethod.hasHttpResponse()) {
-                String compressionAlg = HttpClientSupport.getResponseCompressionType(postMethod.getHttpResponse());
-                if (compressionAlg != null) {
-                    data = CompressionSupport.decompress(compressionAlg, data);
-                }
-            }
-        } catch (Exception e) {
-            SoapUI.logError(e);
-        }
-    }
+			// the post method already does decompression
+			// ExtendedPostMethod
+	
+			//if( !SoapUI.getSettings().getBoolean( HttpSettings.DISABLE_RESPONSE_DECOMPRESSION )
+			//		&& postMethod.hasHttpResponse() )
+			//{
+			//	String compressionAlg = HttpClientSupport.getResponseCompressionType( postMethod.getHttpResponse() );
+			//	if( compressionAlg != null )
+			//		data = CompressionSupport.decompress( compressionAlg, data );
+			//}
+		}
+		catch( Exception e )
+		{
+			SoapUI.logError( e );
+		}
+	}
 
     public long getDataSize() {
         return data == null ? -1 : data.length;

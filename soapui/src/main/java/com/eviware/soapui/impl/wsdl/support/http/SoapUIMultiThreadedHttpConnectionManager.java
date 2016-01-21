@@ -236,6 +236,8 @@ public class SoapUIMultiThreadedHttpConnectionManager extends ThreadSafeClientCo
                 throw new IllegalStateException("Connection must not be open");
             }
 
+            log.debug("Opening a new connection");
+            
             Scheme schm = schemeRegistry.getScheme(target.getSchemeName());
             SchemeSocketFactory sf = schm.getSchemeSocketFactory();
 

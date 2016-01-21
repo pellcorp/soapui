@@ -139,6 +139,19 @@ public class AutomaticSAMLEntryTest {
     }
 
     @Test
+    public void testProcessUnsignedSAML1AuthenticationAssertionUsingBearer() throws WSSecurityException,
+            XPathExpressionException {
+        setRequiredFields(AutomaticSAMLEntry.SAML_VERSION_1, false, AutomaticSAMLEntry.AUTHENTICATION_ASSERTION_TYPE,
+                AutomaticSAMLEntry.BEARER_CONFIRMATION_METHOD);
+
+        automaticSamlEntry.process(secHeader, doc, contextMock);
+
+        assertEquals(xpath.evaluate("//saml1:ConfirmationMethod", doc, XPathConstants.STRING),
+                SAML1Constants.CONF_BEARER);
+        assertNotNull(xpath.evaluate("//saml1:AuthenticationStatement", doc, XPathConstants.NODE));
+    }
+    
+    @Test
     public void testProcessUnsignedSAML1AuthenticationAssertionUsingSenderVouches() throws WSSecurityException,
             XPathExpressionException {
         setRequiredFields(AutomaticSAMLEntry.SAML_VERSION_1, false, AutomaticSAMLEntry.AUTHENTICATION_ASSERTION_TYPE,

@@ -45,6 +45,14 @@
                 <exclude>Tutorials/</exclude>
             </excludes>
         </fileSet>
+		<fileSet>
+            <directory>${basedir}/src/install4j/resources/images</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>SoapUI-OS-5.2.ico</include>
+				<include>SoapUI-OS-5.2_48-48.png</include>
+            </includes>
+        </fileSet>
         <fileSet>
             <directory>${basedir}/target</directory>
             <outputDirectory>bin</outputDirectory>
@@ -88,7 +96,9 @@
             <directory>${maven.soapui.standalone.jre}</directory>
             <outputDirectory>jre</outputDirectory>
         </fileSet>
-        <fileSet>
+
+<!--        
+		<fileSet>
             <directory>${project.parent.basedir}/${project.src.artifactId}/src</directory>
             <outputDirectory>source</outputDirectory>
             <includes>
@@ -106,6 +116,7 @@
                 <include>assembly/</include>
             </includes>
         </fileSet>
+-->
 
         <!-- TODO Ugly hack to create the empty listeners and actions directories -->
         <fileSet>

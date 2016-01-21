@@ -22,6 +22,7 @@ import org.apache.ws.security.components.crypto.CryptoType;
 import org.apache.ws.security.saml.ext.SAMLCallback;
 import org.apache.ws.security.saml.ext.bean.KeyInfoBean;
 import org.apache.ws.security.saml.ext.bean.SubjectBean;
+import org.apache.ws.security.saml.ext.builder.SAML1Constants;
 import org.apache.ws.security.saml.ext.builder.SAML2Constants;
 import org.opensaml.common.SAMLVersion;
 
@@ -89,6 +90,8 @@ public class SAML2CallbackHandler extends AbstractSAMLCallbackHandler {
             confirmationMethod = SAML2Constants.CONF_HOLDER_KEY;
         } else if (confirmationMethodFriendlyName.equals(AutomaticSAMLEntry.SENDER_VOUCHES_CONFIRMATION_METHOD)) {
             confirmationMethod = SAML2Constants.CONF_SENDER_VOUCHES;
+        } else if (confirmationMethodFriendlyName.equals(AutomaticSAMLEntry.BEARER_CONFIRMATION_METHOD)) {
+            confirmationMethod = SAML2Constants.CONF_BEARER;
         }
     }
 }
