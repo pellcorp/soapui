@@ -55,6 +55,13 @@ bundled or none -->
                 <include>RELEASENOTES.txt</include>
             </includes>
         </fileSet>
+		<fileSet>
+            <directory>${basedir}/src/install4j/resources/images</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+				<include>SoapUI-OS-5.2_48-48.png</include>
+            </includes>
+        </fileSet>
         <fileSet>
             <directory>${basedir}/target</directory>
             <outputDirectory>bin</outputDirectory>

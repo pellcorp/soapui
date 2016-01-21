@@ -16,16 +16,18 @@
 
 package com.eviware.soapui.maven2;
 
-import com.eviware.soapui.SoapUI;
-import com.eviware.soapui.tools.SoapUITestCaseRunner;
+import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.project.MavenProject;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Properties;
+import com.eviware.soapui.DefaultSoapUICore;
+import com.eviware.soapui.SoapUI;
+import com.eviware.soapui.tools.SoapUITestCaseRunner;
 
 /**
  * Runs SoapUI functional tests
@@ -35,12 +37,30 @@ import java.util.Properties;
 
 public class TestMojo extends AbstractMojo
 {
-
+	private static final String SKIP_COMPLETE = "soapui.test.skipComplete";
+	
 	public void execute() throws MojoExecutionException, MojoFailureException
 	{
 		if( skip || System.getProperty( "maven.test.skip", "false" ).equals( "true" ) )
 			return;
-
+		 
+		getLog().info("Execution id: " + project.getExecutionProject().getId());
+        if (StringUtils.isNotEmpty(skipToExecution)) {
+           Properties properties = project.getProperties();
+           boolean skipComplete = Boolean.valueOf(properties.getProperty(SKIP_COMPLETE));
+           if (!skipComplete) {
+               String executionId = execution.getExecutionId();
+               if (skipToExecution.equals(executionId)) {
+            	   if (continueAfterSkip) {
+            		   properties.put(SKIP_COMPLETE, "true");
+            	   }
+               } else {
+                   getLog().info("Skipping execution: " + executionId);
+                   return;
+               }
+           }
+        }
+		
 		if( projectFile == null )
 		{
 			throw new MojoExecutionException( "soapui-project-file setting is required" );
@@ -59,6 +79,9 @@ public class TestMojo extends AbstractMojo
 		if( endpoint != null )
 			runner.setEndpoint( endpoint );
 
+		if( jmsEndpoint != null )
+            runner.setJmsEndpoint( jmsEndpoint );
+		
 		if( testSuite != null )
 			runner.setTestSuite( testSuite );
 
@@ -80,6 +103,9 @@ public class TestMojo extends AbstractMojo
 		if( host != null )
 			runner.setHost( host );
 
+		if( jmsHost != null )
+            runner.setJmsHost( jmsHost );
+		
 		if( outputFolder != null )
 			runner.setOutputFolder( outputFolder );
 
@@ -90,9 +116,16 @@ public class TestMojo extends AbstractMojo
 		runner.setIgnoreError( testFailIgnore );
 		runner.setSaveAfterRun( saveAfterRun );
 
-		if( settingsFile != null )
+		if( settingsFile != null ) {
+			DefaultSoapUICore core = (DefaultSoapUICore) SoapUI.getSoapUICore();
+			if (core != null && !core.getSettingsFile().equals(settingsFile)) {
+				// force reload
+				SoapUI.setSoapUICore(null);
+			}
+			
 			runner.setSettingsFile( settingsFile );
-
+		}
+		
 		if( projectPassword != null )
 			runner.setProjectPassword( projectPassword );
 
@@ -105,12 +138,16 @@ public class TestMojo extends AbstractMojo
 		if( projectProperties != null )
 			runner.setProjectProperties( projectProperties );
 
-		if( soapuiProperties != null && soapuiProperties.size() > 0 )
+		if( soapuiProperties != null && soapuiProperties.size() > 0 ) {
 			for( Object key : soapuiProperties.keySet() )
 			{
 				System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
 				System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
 			}
+			
+			// force reload
+			SoapUI.setSoapUICore(null);
+		}
 		
 		try
 		{
@@ -122,6 +159,28 @@ public class TestMojo extends AbstractMojo
 			throw new MojoFailureException( this, "SoapUI Test(s) failed", e.getMessage() );
 		}
 	}
+
+    /**
+     * @parameter
+	*/
+	private String skipToExecution;
+	
+	/**
+     * @parameter default-value="true"
+	*/
+	private boolean continueAfterSkip;
+
+    /**
+     * @parameter default-value="${project}"
+     * @required
+    */
+    private MavenProject project;
+
+    /**
+     * @parameter default-value="${mojoExecution}"
+     * @required
+    */
+    private MojoExecution execution;
 
 	/**
 	 * The SoapUI project file to test with
@@ -190,6 +249,14 @@ public class TestMojo extends AbstractMojo
 	 */
 
 	private String host;
+	
+	/**
+     * The host to use for requests
+     * 
+     * @parameter expression="${soapui.jmsHost}"
+     */
+
+    private String jmsHost;
 
 	/**
 	 * Overrides the endpoint to use for requests
@@ -198,6 +265,14 @@ public class TestMojo extends AbstractMojo
 	 */
 
 	private String endpoint;
+	
+	/**
+     * Overrides the endpoint to use for requests
+     * 
+     * @parameter expression="${soapui.jmsEndpoint}"
+     */
+
+    private String jmsEndpoint;
 
 	/**
 	 * Sets the output folder for reports

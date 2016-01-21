@@ -76,7 +76,8 @@ public class AutomaticSAMLEntry extends WssEntryBase {
 
     public static final String HOLDER_OF_KEY_CONFIRMATION_METHOD = "Holder-of-key";
     public static final String SENDER_VOUCHES_CONFIRMATION_METHOD = "Sender vouches";
-
+    public static final String BEARER_CONFIRMATION_METHOD = "Bearer";
+    
     private static final String NOT_A_VALID_SAML_VERSION = "Not a valid SAML version";
 
     private KeyAliasComboBoxModel keyAliasComboBoxModel;
@@ -173,7 +174,7 @@ public class AutomaticSAMLEntry extends WssEntryBase {
         });
 
         confirmationMethodComboBox = form.appendComboBox("confirmationMethod", "Confirmation method",
-                new String[]{SENDER_VOUCHES_CONFIRMATION_METHOD}, "Choose the confirmation method");
+                new String[]{SENDER_VOUCHES_CONFIRMATION_METHOD, BEARER_CONFIRMATION_METHOD}, "Choose the confirmation method");
 
         cryptoComboBox = form.appendComboBox("crypto", "Keystore", new KeystoresComboBoxModel(getWssContainer(),
                 getWssContainer().getCryptoByName(crypto), true),
@@ -228,7 +229,7 @@ public class AutomaticSAMLEntry extends WssEntryBase {
     private void checkSigned() {
         if (!signed) {
             form.setComboBoxItems("confirmationMethod", confirmationMethodComboBox,
-                    new String[]{SENDER_VOUCHES_CONFIRMATION_METHOD});
+                    new String[]{SENDER_VOUCHES_CONFIRMATION_METHOD, BEARER_CONFIRMATION_METHOD});
             confirmationMethodComboBox.setSelectedIndex(0);
             cryptoComboBox.setEnabled(false);
             keyAliasComboBox.setEnabled(false);

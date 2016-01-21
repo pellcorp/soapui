@@ -53,20 +53,20 @@ public class HttpUtils {
         if (StringUtils.isNullOrEmpty(endpoint)) {
             return endpoint;
         }
-        endpoint = endpoint.toLowerCase().trim();
-        if (!endpoint.startsWith("http://") && !endpoint.startsWith("https://") && !endpoint.startsWith("$")) {
+        String ep = endpoint.toLowerCase().trim();
+        if (!ep.startsWith("http://") && !ep.startsWith("https://") && !ep.startsWith("$")) {
             return "http://" + endpoint;
         }
 
         return endpoint;
     }
-
+    
     public static String completeUrlWithHttpIfProtocolIsMissing(String endpoint) {
         if (StringUtils.isNullOrEmpty(endpoint)) {
             return endpoint;
         }
-        endpoint = endpoint.trim();
-        if (!endpoint.contains("://")) {
+        String ep = endpoint.toLowerCase().trim();
+        if (!ep.contains("://")) {
             return "http://" + endpoint;
         }
         return endpoint;

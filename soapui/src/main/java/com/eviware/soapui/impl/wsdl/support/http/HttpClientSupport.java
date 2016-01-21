@@ -26,6 +26,7 @@ import com.eviware.soapui.model.settings.Settings;
 import com.eviware.soapui.model.settings.SettingsListener;
 import com.eviware.soapui.settings.HttpSettings;
 import com.eviware.soapui.settings.SSLSettings;
+
 import org.apache.commons.ssl.KeyMaterial;
 import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
@@ -59,6 +60,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * HttpClient related tools
@@ -249,10 +251,10 @@ public class HttpClientSupport {
         public final class SSLSettingsListener implements SettingsListener {
             @Override
             public void settingChanged(String name, String newValue, String oldValue) {
-
                 if (name.equals(SSLSettings.KEYSTORE) || name.equals(SSLSettings.KEYSTORE_PASSWORD)) {
                     try {
                         log.info("Updating keyStore..");
+                        
                         registry.register(new Scheme("https", 443, initSocketFactory()));
                     } catch (Throwable e) {
                         SoapUI.logError(e);
@@ -282,6 +284,13 @@ public class HttpClientSupport {
             KeyStore keyStore = null;
             Settings settings = SoapUI.getSettings();
 
+            // close all existing connections so that they inherit the new keystore configuration
+            if (connectionManager != null && connectionManager.getConnectionsInPool() > 0) {
+            	log.info("Closing all connections in pool...");
+            	
+            	connectionManager.closeIdleConnections(1, TimeUnit.MILLISECONDS);
+            }
+            
             String keyStoreUrl = System.getProperty(SoapUISystemProperties.SOAPUI_SSL_KEYSTORE_LOCATION,
                     settings.getString(SSLSettings.KEYSTORE, null));
 

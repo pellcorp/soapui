@@ -359,7 +359,10 @@ public class DefaultSoapUICore implements SoapUICore {
             settings.setString(WSISettings.WSI_LOCATION, wsiDir);
         }
         HttpClientSupport.addSSLListener(settings);
-
+        
+        // need to refresh settings in HttpClientSupport now as they were loaded with the default settings only
+        settings.reloadSettings();
+        
         return settings;
     }
 
