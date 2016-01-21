@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.smartbear.soapui</groupId>
         <artifactId>soapui-project</artifactId>
-        <version>5.2.1-pellcorp</version>
+        <version>5.2.1_1-pellcorp</version>
     </parent>
 
     <artifactId>soapui-maven-plugin</artifactId>
@@ -33,10 +33,16 @@
 
                 <!-- JGoodies -->
 
+                <!--
+                for some reason SimpleContainsAssertion and SimpleNotContainsAssertion reference classes from
+                jgoodies, due to 
+                https://github.com/SmartBear/soapui/commit/0a944701fd135b16c72b372c8d75a475da3feca7  
                 <exclusion>
                     <groupId>com.jgoodies</groupId>
                     <artifactId>forms</artifactId>
                 </exclusion>
+                 -->
+                 
                 <exclusion>
                     <groupId>com.jgoodies</groupId>
                     <artifactId>looks</artifactId>

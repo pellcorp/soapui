@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.smartbear.soapui</groupId>
         <artifactId>soapui-project</artifactId>
-        <version>5.2.1-pellcorp</version>
+        <version>5.2.1_1-pellcorp</version>
     </parent>
 
     <artifactId>soapui-maven-plugin-tester</artifactId>

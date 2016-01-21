@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.smartbear.soapui</groupId>
         <artifactId>soapui-project</artifactId>
-        <version>5.2.1-pellcorp</version>
+        <version>5.2.1_1-pellcorp</version>
     </parent>
 
     <artifactId>soapui</artifactId>
@@ -578,12 +578,6 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.sonatype.install4j</groupId>
-            <artifactId>i4jruntime</artifactId>
-            <version>5.1.14</version>
         </dependency>
 
         <dependency>
