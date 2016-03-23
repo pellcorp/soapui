@@ -153,6 +153,11 @@ public class UrlWsdlLoader extends WsdlLoader {
         if (aborted) {
             throw new Exception("Load of url [" + url + "] was aborted");
         } else {
+        	Object obj = worker.getValue();
+            if (obj instanceof Exception) {
+            	throw (Exception) obj;
+            }
+             
             if (content != null) {
                 String compressionAlg = HttpClientSupport.getResponseCompressionType(httpResponse);
                 if (compressionAlg != null) {
@@ -203,6 +208,8 @@ public class UrlWsdlLoader extends WsdlLoader {
 
                 httpResponse = httpClient.execute(getMethod, state);
             } catch (Exception e) {
+            	// FIXME - is this thread safe?!
+            	setValue(e);
                 return e;
             } finally {
                 finished = true;
