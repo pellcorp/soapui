@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
+import org.fife.ui.rtextarea.SearchResult;
 
 import com.eviware.soapui.support.UISupport;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
@@ -231,8 +232,8 @@ public class FindAndReplaceDialogView extends AbstractAction {
                 return;
             }
 
-            boolean found = SearchEngine.find(editArea, context);
-            if (!found) {
+           SearchResult result = SearchEngine.find(editArea, context);
+            if (!result.wasFound()) {
                 UISupport.showErrorMessage("String [" + context.getSearchFor() + "] not found");
             }
         }
@@ -251,8 +252,8 @@ public class FindAndReplaceDialogView extends AbstractAction {
                 return;
             }
 
-            boolean found = SearchEngine.replace(editArea, context);
-            if (!found) {
+            SearchResult result = SearchEngine.replace(editArea, context);
+            if (!result.wasFound()) {
                 UISupport.showErrorMessage("String [" + context.getSearchFor() + "] not found");
             }
         }
@@ -272,8 +273,8 @@ public class FindAndReplaceDialogView extends AbstractAction {
                 return;
             }
 
-            int replaceCount = SearchEngine.replaceAll(editArea, context);
-            if (replaceCount <= 0) {
+            SearchResult result = SearchEngine.replaceAll(editArea, context);
+            if (result.getCount() <= 0) {
                 UISupport.showErrorMessage("String [" + context.getSearchFor() + "] not found");
             }
         }

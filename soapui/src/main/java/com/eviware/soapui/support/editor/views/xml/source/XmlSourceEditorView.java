@@ -52,6 +52,7 @@ import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.fife.ui.rtextarea.SearchContext;
 import org.fife.ui.rtextarea.SearchEngine;
+import org.fife.ui.rtextarea.SearchResult;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -91,6 +92,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.eviware.soapui.support.JsonUtil.seemsToBeJsonContentType;
+
 
 /**
  * Default "XML" source editor view in SoapUI
@@ -480,8 +482,8 @@ public class XmlSourceEditorView<T extends ModelItem> extends AbstractXmlEditorV
                     return;
                 }
 
-                boolean found = SearchEngine.find(editArea, context);
-                if (!found) {
+                SearchResult result = SearchEngine.find(editArea, context);
+                if (!result.wasFound()) {
                     UISupport.showErrorMessage("String [" + context.getSearchFor() + "] not found");
                 }
             }
@@ -500,8 +502,8 @@ public class XmlSourceEditorView<T extends ModelItem> extends AbstractXmlEditorV
                     return;
                 }
 
-                boolean found = SearchEngine.replace(editArea, context);
-                if (!found) {
+                SearchResult result = SearchEngine.find(editArea, context);
+                if (!result.wasFound()) {
                     UISupport.showErrorMessage("String [" + context.getSearchFor() + "] not found");
                 }
             }
@@ -521,8 +523,8 @@ public class XmlSourceEditorView<T extends ModelItem> extends AbstractXmlEditorV
                     return;
                 }
 
-                int replaceCount = SearchEngine.replaceAll(editArea, context);
-                if (replaceCount <= 0) {
+                SearchResult result = SearchEngine.replaceAll(editArea, context);
+                if (result.getCount() <= 0) {
                     UISupport.showErrorMessage("String [" + context.getSearchFor() + "] not found");
                 }
             }
