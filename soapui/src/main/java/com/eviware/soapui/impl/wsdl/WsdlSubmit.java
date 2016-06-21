@@ -16,6 +16,14 @@
 
 package com.eviware.soapui.impl.wsdl;
 
+import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.swing.SwingUtilities;
+
+import org.apache.log4j.Logger;
+
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.impl.support.AbstractHttpRequestInterface;
 import com.eviware.soapui.impl.wsdl.submit.RequestTransport;
@@ -24,10 +32,6 @@ import com.eviware.soapui.model.iface.Response;
 import com.eviware.soapui.model.iface.Submit;
 import com.eviware.soapui.model.iface.SubmitContext;
 import com.eviware.soapui.model.iface.SubmitListener;
-import org.apache.log4j.Logger;
-
-import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * Submit implementation for submitting a WsdlRequest
@@ -96,13 +100,23 @@ public final class WsdlSubmit<T extends AbstractHttpRequestInterface<?>> impleme
     }
 
     private void notifyListenersAfterSubmit() {
-        for (SubmitListener listener : listeners) {
-            try {
-                listener.afterSubmit(this, submitContext);
-            } catch (Throwable e) { //NOSONAR
-                SoapUI.logError(e);
-            }
-        }
+    	try {
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					for (SubmitListener listener : listeners) {
+			            try {
+			                listener.afterSubmit(WsdlSubmit.this, submitContext);
+			            } catch (Throwable e) { //NOSONAR
+			                SoapUI.logError(e);
+			            }
+			        }
+				}
+				
+			});
+		} catch (Exception e) {
+			 SoapUI.logError(e, "Error in SubmitListener");
+		}
     }
 
     public void run() {
@@ -149,18 +163,30 @@ public final class WsdlSubmit<T extends AbstractHttpRequestInterface<?>> impleme
     }
 
     private boolean notifyListenersBeforeSubmit() {
-        for (SubmitListener listener : listeners) {
-            try {
-                if (!listener.beforeSubmit(this, submitContext)) {
-                    status = Status.CANCELED;
-                    System.err.println("listener cancelled submit...");
-                    return true;
-                }
-            } catch (Throwable e) {
-                SoapUI.logError(e, "Error in SubmitListener");
-            }
-        }
-        return false;
+    	final AtomicBoolean result = new AtomicBoolean();
+    
+    	try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					for (SubmitListener listener : listeners) {
+			            try {
+			                if (!listener.beforeSubmit(WsdlSubmit.this, submitContext)) {
+			                    status = Status.CANCELED;
+			                    System.err.println("listener cancelled submit...");
+			                    result.set(true);
+			                }
+			            } catch (Throwable e) {
+			                SoapUI.logError(e, "Error in SubmitListener");
+			            }
+			        }
+					result.set(false);
+				}
+			});
+		} catch (Exception e) {
+			 SoapUI.logError(e, "Error in SubmitListener");
+		}
+    	
+    	return result.get();
     }
 
     public T getRequest() {
