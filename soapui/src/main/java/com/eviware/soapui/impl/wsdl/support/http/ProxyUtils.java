@@ -183,7 +183,14 @@ public class ProxyUtils {
             }
             authenticator = new ProxySettingsAuthenticator();
         }
-        ProxySelector.setDefault(proxySelector);
+        
+        // http://stackoverflow.com/questions/2175742/connecting-with-different-proxies-to-specific-addresses
+        if(proxySelector != null) {
+        	ProxySelector.setDefault(proxySelector);
+        } else {
+        	ProxySelector.setDefault(DirectProxySelector.DIRECT);
+        }
+        
         Authenticator.setDefault(authenticator);
         HttpClientSupport.setProxySelector(proxySelector);
         HttpClientSupport.getHttpClient().setCredentialsProvider(getProxyCredentials(settings));
