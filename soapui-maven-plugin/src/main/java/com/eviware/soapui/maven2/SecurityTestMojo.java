@@ -26,6 +26,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.ProxySelector;
 import java.net.URL;
 import java.util.Properties;
 
@@ -47,83 +48,91 @@ public class SecurityTestMojo extends AbstractMojo
 			throw new MojoExecutionException( "soapui-project-file setting is required" );
 		}
 
-//		if( !projectFile.startsWith( "http" ) )
-//			if( !new File( projectFile ).exists() )
-//			{
-//				throw new MojoExecutionException( "soapui-project-file [" + projectFile + "] is not found or not specified" );
-//			}
+		final ProxySelector proxySelector = ProxySelector.getDefault();
+		getLog().debug("Saving Proxy Selector " + proxySelector);
+		try {
 
-		SoapUISecurityTestRunner runner = new SoapUISecurityTestRunner( "SoapUI " + SoapUI.SOAPUI_VERSION
-				+ " Maven2 Security Test Runner" );
-		runner.setProjectFile( projectFile );
-
-		if( endpoint != null )
-			runner.setEndpoint( endpoint );
-
-		if( testSuite != null )
-			runner.setTestSuite( testSuite );
-
-		if( testCase != null )
-			runner.setTestCase( testCase );
-
-		if( username != null )
-			runner.setUsername( username );
-
-		if( password != null )
-			runner.setPassword( password );
-
-		if( wssPasswordType != null )
-			runner.setWssPasswordType( wssPasswordType );
-
-		if( domain != null )
-			runner.setDomain( domain );
-
-		if( host != null )
-			runner.setHost( host );
-
-		if( outputFolder != null )
-			runner.setOutputFolder( outputFolder );
-
-		runner.setPrintReport( printReport );
-		runner.setExportAll( exportAll );
-		runner.setJUnitReport( junitReport );
-		runner.setEnableUI( interactive );
-		runner.setIgnoreError( testFailIgnore );
-		runner.setSaveAfterRun( saveAfterRun );
-
-		if( settingsFile != null )
-			runner.setSettingsFile( settingsFile );
-
-		if( projectPassword != null )
-			runner.setProjectPassword( projectPassword );
-
-		if( settingsPassword != null )
-			runner.setSoapUISettingsPassword( settingsPassword );
-
-		if( globalProperties != null )
-			runner.setGlobalProperties( globalProperties );
-
-		if( projectProperties != null )
-			runner.setProjectProperties( projectProperties );
-
-		if( soapuiProperties != null && soapuiProperties.size() > 0 )
-			for( Object key : soapuiProperties.keySet() )
+	//		if( !projectFile.startsWith( "http" ) )
+	//			if( !new File( projectFile ).exists() )
+	//			{
+	//				throw new MojoExecutionException( "soapui-project-file [" + projectFile + "] is not found or not specified" );
+	//			}
+	
+			SoapUISecurityTestRunner runner = new SoapUISecurityTestRunner( "SoapUI " + SoapUI.SOAPUI_VERSION
+					+ " Maven2 Security Test Runner" );
+			runner.setProjectFile( projectFile );
+	
+			if( endpoint != null )
+				runner.setEndpoint( endpoint );
+	
+			if( testSuite != null )
+				runner.setTestSuite( testSuite );
+	
+			if( testCase != null )
+				runner.setTestCase( testCase );
+	
+			if( username != null )
+				runner.setUsername( username );
+	
+			if( password != null )
+				runner.setPassword( password );
+	
+			if( wssPasswordType != null )
+				runner.setWssPasswordType( wssPasswordType );
+	
+			if( domain != null )
+				runner.setDomain( domain );
+	
+			if( host != null )
+				runner.setHost( host );
+	
+			if( outputFolder != null )
+				runner.setOutputFolder( outputFolder );
+	
+			runner.setPrintReport( printReport );
+			runner.setExportAll( exportAll );
+			runner.setJUnitReport( junitReport );
+			runner.setEnableUI( interactive );
+			runner.setIgnoreError( testFailIgnore );
+			runner.setSaveAfterRun( saveAfterRun );
+	
+			if( settingsFile != null )
+				runner.setSettingsFile( settingsFile );
+	
+			if( projectPassword != null )
+				runner.setProjectPassword( projectPassword );
+	
+			if( settingsPassword != null )
+				runner.setSoapUISettingsPassword( settingsPassword );
+	
+			if( globalProperties != null )
+				runner.setGlobalProperties( globalProperties );
+	
+			if( projectProperties != null )
+				runner.setProjectProperties( projectProperties );
+	
+			if( soapuiProperties != null && soapuiProperties.size() > 0 )
+				for( Object key : soapuiProperties.keySet() )
+				{
+	//				System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
+					System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
+				}
+			
+			if ( securityTest != null && securityTest.length() > 0 )
+				runner.setSecurityTestName( securityTest );
+			
+			try
 			{
-//				System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
-				System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
+				runner.run();
 			}
-		
-		if ( securityTest != null && securityTest.length() > 0 )
-			runner.setSecurityTestName( securityTest );
-		
-		try
-		{
-			runner.run();
-		}
-		catch( Exception e )
-		{
-			getLog().error( e.toString() );
-			throw new MojoFailureException( this, "SoapUI Test(s) failed", e.getMessage() );
+			catch( Exception e )
+			{
+				getLog().error( e.toString() );
+				throw new MojoFailureException( this, "SoapUI Test(s) failed", e.getMessage() );
+			}
+		} finally {
+			getLog().debug("Restoring Proxy Selector " + proxySelector);
+			ProxySelector.setDefault(proxySelector);
 		}
 	}
 

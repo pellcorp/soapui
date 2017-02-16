@@ -23,6 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
+import java.net.ProxySelector;
 import java.util.Properties;
 
 /**
@@ -43,85 +44,92 @@ public class LoadTestMojo extends AbstractMojo
 			throw new MojoExecutionException("soapui-project-file setting is required" );
 		}
 
-//		if( !new File(projectFile).exists() )
-//		{
-//			throw new MojoExecutionException("soapui-project-file [" + projectFile + "] is not found" );
-//		}
-		
-		SoapUILoadTestRunner runner = new SoapUILoadTestRunner( 
-					"SoapUI " + SoapUI.SOAPUI_VERSION + " Maven2 LoadTest Runner");
-		runner.setProjectFile( projectFile );
-		
-		if( endpoint != null )
-			runner.setEndpoint( endpoint );
-		
-		if( testSuite != null )
-			runner.setTestSuite( testSuite );
-		
-		if( testCase != null )
-			runner.setTestCase( testCase );
-		
-		if( loadTest != null )
-			runner.setLoadTest( loadTest );
-		
-		if( username != null )
-			runner.setUsername( username );
-		
-		if( password != null )
-			runner.setPassword( password );
-		
-		if( wssPasswordType != null )
-			runner.setWssPasswordType( wssPasswordType );
-		
-		if( domain != null )
-			runner.setDomain( domain );
-		
-		if( limit != null )
-			runner.setLimit( limit.intValue() );
-		
-		if( threadCount != null )
-			runner.setThreadCount( threadCount.intValue() );
-		
-		if( host != null )
-			runner.setHost( host );
-		
-		if( outputFolder != null )
-			runner.setOutputFolder( outputFolder );
-		
-		runner.setPrintReport( printReport );
-		runner.setSaveAfterRun( saveAfterRun );
-
-		if( settingsFile != null )
-			runner.setSettingsFile( settingsFile );
-		
-		if ( projectPassword != null )
-			runner.setProjectPassword(projectPassword);
-		
-		if ( settingsPassword != null )
-			runner.setSoapUISettingsPassword(settingsPassword);
-		
-		if( globalProperties != null )
-			runner.setGlobalProperties(globalProperties);
-		
-		if( projectProperties != null )
-			runner.setProjectProperties(projectProperties);
+		final ProxySelector proxySelector = ProxySelector.getDefault();
+		getLog().debug("Saving Proxy Selector " + proxySelector);
+		try {
+	//		if( !new File(projectFile).exists() )
+	//		{
+	//			throw new MojoExecutionException("soapui-project-file [" + projectFile + "] is not found" );
+	//		}
 			
-		if( soapuiProperties != null && soapuiProperties.size() > 0 )
-			for( Object key : soapuiProperties.keySet() )
+			SoapUILoadTestRunner runner = new SoapUILoadTestRunner( 
+						"SoapUI " + SoapUI.SOAPUI_VERSION + " Maven2 LoadTest Runner");
+			runner.setProjectFile( projectFile );
+			
+			if( endpoint != null )
+				runner.setEndpoint( endpoint );
+			
+			if( testSuite != null )
+				runner.setTestSuite( testSuite );
+			
+			if( testCase != null )
+				runner.setTestCase( testCase );
+			
+			if( loadTest != null )
+				runner.setLoadTest( loadTest );
+			
+			if( username != null )
+				runner.setUsername( username );
+			
+			if( password != null )
+				runner.setPassword( password );
+			
+			if( wssPasswordType != null )
+				runner.setWssPasswordType( wssPasswordType );
+			
+			if( domain != null )
+				runner.setDomain( domain );
+			
+			if( limit != null )
+				runner.setLimit( limit.intValue() );
+			
+			if( threadCount != null )
+				runner.setThreadCount( threadCount.intValue() );
+			
+			if( host != null )
+				runner.setHost( host );
+			
+			if( outputFolder != null )
+				runner.setOutputFolder( outputFolder );
+			
+			runner.setPrintReport( printReport );
+			runner.setSaveAfterRun( saveAfterRun );
+	
+			if( settingsFile != null )
+				runner.setSettingsFile( settingsFile );
+			
+			if ( projectPassword != null )
+				runner.setProjectPassword(projectPassword);
+			
+			if ( settingsPassword != null )
+				runner.setSoapUISettingsPassword(settingsPassword);
+			
+			if( globalProperties != null )
+				runner.setGlobalProperties(globalProperties);
+			
+			if( projectProperties != null )
+				runner.setProjectProperties(projectProperties);
+				
+			if( soapuiProperties != null && soapuiProperties.size() > 0 )
+				for( Object key : soapuiProperties.keySet() )
+				{
+					System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
+					System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
+				}
+			
+			try
 			{
-				System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
-				System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
+				runner.run();
 			}
-		
-		try
-		{
-			runner.run();
+			catch (Throwable e)
+			{
+				getLog().error( e.toString() );
+				throw new MojoFailureException( this, "SoapUI LoadTest(s) failed", e.getMessage() ); 
+			}
+		} finally {
+			getLog().debug("Restoring Proxy Selector " + proxySelector);
+			ProxySelector.setDefault(proxySelector);
 		}
-		catch (Throwable e)
-		{
-			getLog().error( e.toString() );
-			throw new MojoFailureException( this, "SoapUI LoadTest(s) failed", e.getMessage() ); 
-		}		
 	}
 	
 	/**

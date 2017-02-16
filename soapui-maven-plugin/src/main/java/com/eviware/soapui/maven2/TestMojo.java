@@ -16,6 +16,7 @@
 
 package com.eviware.soapui.maven2;
 
+import java.net.ProxySelector;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,120 +44,129 @@ public class TestMojo extends AbstractMojo
 	{
 		if( skip || System.getProperty( "maven.test.skip", "false" ).equals( "true" ) )
 			return;
-		 
-		getLog().info("Execution id: " + project.getExecutionProject().getId());
-        if (StringUtils.isNotEmpty(skipToExecution)) {
-           Properties properties = project.getProperties();
-           boolean skipComplete = Boolean.valueOf(properties.getProperty(SKIP_COMPLETE));
-           if (!skipComplete) {
-               String executionId = execution.getExecutionId();
-               if (skipToExecution.equals(executionId)) {
-            	   if (continueAfterSkip) {
-            		   properties.put(SKIP_COMPLETE, "true");
-            	   }
-               } else {
-                   getLog().info("Skipping execution: " + executionId);
-                   return;
-               }
-           }
-        }
 		
-		if( projectFile == null )
-		{
-			throw new MojoExecutionException( "soapui-project-file setting is required" );
-		}
-
-//		if( !projectFile.startsWith( "http" ) )
-//			if( !new File( projectFile ).exists() )
-//			{
-//				throw new MojoExecutionException( "soapui-project-file [" + projectFile + "] is not found or not specified" );
-//			}
-
-		SoapUITestCaseRunner runner = new SoapUITestCaseRunner( "SoapUI " + SoapUI.SOAPUI_VERSION
-				+ " Maven2 TestCase Runner" );
-		runner.setProjectFile( projectFile );
-
-		if( endpoint != null )
-			runner.setEndpoint( endpoint );
-
-		if( jmsEndpoint != null )
-            runner.setJmsEndpoint( jmsEndpoint );
+		final ProxySelector proxySelector = ProxySelector.getDefault();
+		getLog().debug("Saving Proxy Selector " + proxySelector);
 		
-		if( testSuite != null )
-			runner.setTestSuite( testSuite );
-
-		if( testCase != null )
-			runner.setTestCase( testCase );
-
-		if( username != null )
-			runner.setUsername( username );
-
-		if( password != null )
-			runner.setPassword( password );
-
-		if( wssPasswordType != null )
-			runner.setWssPasswordType( wssPasswordType );
-
-		if( domain != null )
-			runner.setDomain( domain );
-
-		if( host != null )
-			runner.setHost( host );
-
-		if( jmsHost != null )
-            runner.setJmsHost( jmsHost );
-		
-		if( outputFolder != null )
-			runner.setOutputFolder( outputFolder );
-
-		runner.setPrintReport( printReport );
-		runner.setExportAll( exportAll );
-		runner.setJUnitReport( junitReport );
-		runner.setEnableUI( interactive );
-		runner.setIgnoreError( testFailIgnore );
-		runner.setSaveAfterRun( saveAfterRun );
-
-		if( settingsFile != null ) {
-			DefaultSoapUICore core = (DefaultSoapUICore) SoapUI.getSoapUICore();
-			if (core != null && !core.getSettingsFile().equals(settingsFile)) {
+		try {
+			getLog().info("Execution id: " + project.getExecutionProject().getId());
+			
+	        if (StringUtils.isNotEmpty(skipToExecution)) {
+	           Properties properties = project.getProperties();
+	           boolean skipComplete = Boolean.valueOf(properties.getProperty(SKIP_COMPLETE));
+	           if (!skipComplete) {
+	               String executionId = execution.getExecutionId();
+	               if (skipToExecution.equals(executionId)) {
+	            	   if (continueAfterSkip) {
+	            		   properties.put(SKIP_COMPLETE, "true");
+	            	   }
+	               } else {
+	                   getLog().info("Skipping execution: " + executionId);
+	                   return;
+	               }
+	           }
+	        }
+			
+			if( projectFile == null )
+			{
+				throw new MojoExecutionException( "soapui-project-file setting is required" );
+			}
+	
+	//		if( !projectFile.startsWith( "http" ) )
+	//			if( !new File( projectFile ).exists() )
+	//			{
+	//				throw new MojoExecutionException( "soapui-project-file [" + projectFile + "] is not found or not specified" );
+	//			}
+	
+			SoapUITestCaseRunner runner = new SoapUITestCaseRunner( "SoapUI " + SoapUI.SOAPUI_VERSION
+					+ " Maven2 TestCase Runner" );
+			runner.setProjectFile( projectFile );
+	
+			if( endpoint != null )
+				runner.setEndpoint( endpoint );
+	
+			if( jmsEndpoint != null )
+	            runner.setJmsEndpoint( jmsEndpoint );
+			
+			if( testSuite != null )
+				runner.setTestSuite( testSuite );
+	
+			if( testCase != null )
+				runner.setTestCase( testCase );
+	
+			if( username != null )
+				runner.setUsername( username );
+	
+			if( password != null )
+				runner.setPassword( password );
+	
+			if( wssPasswordType != null )
+				runner.setWssPasswordType( wssPasswordType );
+	
+			if( domain != null )
+				runner.setDomain( domain );
+	
+			if( host != null )
+				runner.setHost( host );
+	
+			if( jmsHost != null )
+	            runner.setJmsHost( jmsHost );
+			
+			if( outputFolder != null )
+				runner.setOutputFolder( outputFolder );
+	
+			runner.setPrintReport( printReport );
+			runner.setExportAll( exportAll );
+			runner.setJUnitReport( junitReport );
+			runner.setEnableUI( interactive );
+			runner.setIgnoreError( testFailIgnore );
+			runner.setSaveAfterRun( saveAfterRun );
+	
+			if( settingsFile != null ) {
+				DefaultSoapUICore core = (DefaultSoapUICore) SoapUI.getSoapUICore();
+				if (core != null && !core.getSettingsFile().equals(settingsFile)) {
+					// force reload
+					SoapUI.setSoapUICore(null);
+				}
+				
+				runner.setSettingsFile( settingsFile );
+			}
+			
+			if( projectPassword != null )
+				runner.setProjectPassword( projectPassword );
+	
+			if( settingsPassword != null )
+				runner.setSoapUISettingsPassword( settingsPassword );
+	
+			if( globalProperties != null )
+				runner.setGlobalProperties( globalProperties );
+	
+			if( projectProperties != null )
+				runner.setProjectProperties( projectProperties );
+	
+			if( soapuiProperties != null && soapuiProperties.size() > 0 ) {
+				for( Object key : soapuiProperties.keySet() )
+				{
+					System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
+					System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
+				}
+				
 				// force reload
 				SoapUI.setSoapUICore(null);
 			}
 			
-			runner.setSettingsFile( settingsFile );
-		}
-		
-		if( projectPassword != null )
-			runner.setProjectPassword( projectPassword );
-
-		if( settingsPassword != null )
-			runner.setSoapUISettingsPassword( settingsPassword );
-
-		if( globalProperties != null )
-			runner.setGlobalProperties( globalProperties );
-
-		if( projectProperties != null )
-			runner.setProjectProperties( projectProperties );
-
-		if( soapuiProperties != null && soapuiProperties.size() > 0 ) {
-			for( Object key : soapuiProperties.keySet() )
+			try
 			{
-				System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
-				System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
+				runner.run();
 			}
-			
-			// force reload
-			SoapUI.setSoapUICore(null);
-		}
-		
-		try
-		{
-			runner.run();
-		}
-		catch( Exception e )
-		{
-			getLog().error( e.toString() );
-			throw new MojoFailureException( this, "SoapUI Test(s) failed", e.getMessage() );
+			catch( Exception e )
+			{
+				getLog().error( e.toString() );
+				throw new MojoFailureException( this, "SoapUI Test(s) failed", e.getMessage() );
+			}
+		} finally {
+			getLog().debug("Restoring Proxy Selector " + proxySelector);
+			ProxySelector.setDefault(proxySelector);
 		}
 	}
 

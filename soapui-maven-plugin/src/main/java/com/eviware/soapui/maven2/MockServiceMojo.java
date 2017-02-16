@@ -23,6 +23,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
 import java.io.File;
+import java.net.ProxySelector;
 import java.util.Properties;
 
 /**
@@ -47,55 +48,61 @@ public class MockServiceMojo extends AbstractMojo
 //		{
 //			throw new MojoExecutionException("soapui-project-file [" + projectFile + "] is not found" );
 //		}
-		
-		SoapUIMockServiceRunner runner = new SoapUIMockServiceRunner(
-					"SoapUI " + SoapUI.SOAPUI_VERSION + " Maven2 MockService Runner");
-		runner.setProjectFile( projectFile );
-		
-		
-		if( mockService != null )
-			runner.setMockService( mockService );
-		
-		if( path != null )
-			runner.setPath( path );
-		
-		if( port != null )
-			runner.setPort( port );
-		
-		if( settingsFile != null )
-			runner.setSettingsFile( settingsFile );
-		
-		runner.setBlock( !noBlock );
-		runner.setSaveAfterRun( saveAfterRun );
-
-		if( projectPassword != null )
-			runner.setProjectPassword(projectPassword);
-		
-		if ( settingsPassword != null ) 
-			runner.setSoapUISettingsPassword(settingsPassword);
-		
-		if( globalProperties != null )
-			runner.setGlobalProperties(globalProperties);
-		
-		if( projectProperties != null )
-			runner.setProjectProperties(projectProperties);
-		
-		if( soapuiProperties != null && soapuiProperties.size() > 0 )
-			for( Object key : soapuiProperties.keySet() )
-			{
-				System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
-				System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
-			}
+		final ProxySelector proxySelector = ProxySelector.getDefault();
+		getLog().debug("Saving Proxy Selector " + proxySelector);
+		try {
+			SoapUIMockServiceRunner runner = new SoapUIMockServiceRunner(
+						"SoapUI " + SoapUI.SOAPUI_VERSION + " Maven2 MockService Runner");
+			runner.setProjectFile( projectFile );
 			
-		try
-		{
-			runner.run();
+			
+			if( mockService != null )
+				runner.setMockService( mockService );
+			
+			if( path != null )
+				runner.setPath( path );
+			
+			if( port != null )
+				runner.setPort( port );
+			
+			if( settingsFile != null )
+				runner.setSettingsFile( settingsFile );
+			
+			runner.setBlock( !noBlock );
+			runner.setSaveAfterRun( saveAfterRun );
+	
+			if( projectPassword != null )
+				runner.setProjectPassword(projectPassword);
+			
+			if ( settingsPassword != null ) 
+				runner.setSoapUISettingsPassword(settingsPassword);
+			
+			if( globalProperties != null )
+				runner.setGlobalProperties(globalProperties);
+			
+			if( projectProperties != null )
+				runner.setProjectProperties(projectProperties);
+			
+			if( soapuiProperties != null && soapuiProperties.size() > 0 )
+				for( Object key : soapuiProperties.keySet() )
+				{
+					System.out.println( "Setting " + ( String )key + " value " + soapuiProperties.getProperty( ( String )key ) );
+					System.setProperty( ( String )key, soapuiProperties.getProperty( ( String )key ) );
+				}
+				
+			try
+			{
+				runner.run();
+			}
+			catch (Exception e)
+			{
+				getLog().error( e.toString() );
+				throw new MojoFailureException( this, "SoapUI MockService(s) failed", e.getMessage() ); 
+			}
+		} finally {
+			getLog().debug("Restoring Proxy Selector " + proxySelector);
+			ProxySelector.setDefault(proxySelector);
 		}
-		catch (Exception e)
-		{
-			getLog().error( e.toString() );
-			throw new MojoFailureException( this, "SoapUI MockService(s) failed", e.getMessage() ); 
-		}		
 	}
 	
 	/**
